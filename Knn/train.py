@@ -1,9 +1,9 @@
 import cv2
-import numpy as np
 import exFunc
+import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 
 f_name = "data.csv"
 classifier = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -28,49 +28,52 @@ def display_pca_plot(X_train, Y_train):
     plt.show()
 
 def train_by_camera(save_img = False):
-    name = input("Nhập tên của bạn: ")
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    face = (0,0,0,0)
-    f_list = []
-    auto_capture = False
-    while True:
-        ret, frame = cap.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = classifier.detectMultiScale(gray, scaleFactor = 1.5, minNeighbors = 5)
-        faces = sorted(faces, key = lambda x: x[2] * x[3], reverse = True)
-        faces = faces[:1]
-        if len(faces) >= 1:
-            face = faces[0]
-            color = (0, 255, 0)
-        else:
-            color = (0, 0, 255)
-        x, y, w, h = face
-        im_face = frame[y : y + h, x : x + w]
-        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
-        if not ret:
-            continue
-        cv2.imshow("Face-Recognition", frame)
-        key = cv2.waitKey(1)
-        if key & 0xFF == ord("q"):
-            break
-        elif key & 0xFF == ord("c") or auto_capture:
-            if len(faces) == 1:
-                gray_face = cv2.cvtColor(im_face, cv2.COLOR_BGR2GRAY)
-                gray_face = cv2.resize(gray_face, (100, 100))
-                print(len(f_list), type(gray_face), gray_face.shape)
-                f_list.append(gray_face.reshape(-1))
-                if (save_img):
-                    exFunc.save_image(gray_face, name, len(f_list))
+    t = int(input("Nhập số lượng người huấn luyện: "))
+    while t >=1 :
+        name = input("Nhập tên của bạn: ")
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        face = (0,0,0,0)
+        f_list = []
+        auto_capture = False
+        while True:
+            ret, frame = cap.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = classifier.detectMultiScale(gray, scaleFactor = 1.5, minNeighbors = 5)
+            faces = sorted(faces, key = lambda x: x[2] * x[3], reverse = True)
+            faces = faces[:1]
+            if len(faces) >= 1:
+                face = faces[0]
+                color = (0, 255, 0)
             else:
-                print("Không tìm thấy khuôn mặt")
-            if len(f_list) == 20:
-                if (f_list): exFunc.write(name, np.array(f_list))
-                f_list = []
-                auto_capture = False
-        elif key & 0xFF == ord("s"):
-            auto_capture = True
-    cap.release()
-    cv2.destroyAllWindows()
+                color = (0, 0, 255)
+            x, y, w, h = face
+            im_face = frame[y : y + h, x : x + w]
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
+            if not ret:
+                continue
+            cv2.imshow("Face-Recognition", frame)
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord("q"):
+                t-=1
+                break
+            elif key & 0xFF == ord("c") or auto_capture:
+                if len(faces) == 1:
+                    gray_face = cv2.cvtColor(im_face, cv2.COLOR_BGR2GRAY)
+                    gray_face = cv2.resize(gray_face, (100, 100))
+                    print(len(f_list), type(gray_face), gray_face.shape)
+                    f_list.append(gray_face.reshape(-1))
+                    if (save_img):
+                        exFunc.save_image(gray_face, name, len(f_list))
+                else:
+                    print("Không tìm thấy khuôn mặt")
+                if len(f_list) == 20:
+                    if (f_list): exFunc.write(name, np.array(f_list))
+                    f_list = []
+                    auto_capture = False
+            elif key & 0xFF == ord("s"):
+                auto_capture = True
+        cap.release()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     print("1. Huấn luyện bằng camera")
