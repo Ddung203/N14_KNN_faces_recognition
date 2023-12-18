@@ -61,7 +61,7 @@ else:
 # if (sel == "1"):
 #     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-classifier = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+classifier = cv2.CascadeClassifier(cv2.data.haarcascades +"haarcascade_frontalface_default.xml")
 f_list = []
 x, y, w, h = (0,0,0,0)
 response_name = "Unknown"
